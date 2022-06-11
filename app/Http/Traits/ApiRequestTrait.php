@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 
 trait ApiRequestTrait
 {
-
     public function request($method, $requestUrl, $formParams = [], $headers = [])
     {
         $client = new Client();

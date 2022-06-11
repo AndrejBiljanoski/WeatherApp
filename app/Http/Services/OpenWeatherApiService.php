@@ -2,36 +2,44 @@
 
 namespace App\Http\Services;
 
+use App\Builders\OpenWeatherBuilder;
 use App\Http\Traits\ApiRequestTrait;
+use Carbon\Carbon;
 
 class OpenWeatherApiService
 {
     use ApiRequestTrait;
 
     private string $baseURL = 'https://api.openweathermap.org/data/2.5/weather';
-    private string $unit;
-    private string $lang;
 
-    public function __construct($unit = 'metric', $lang = 'en')
+    public function get(OpenWeatherBuilder $openWeather)
     {
-        $this->unit = $unit;
-        $this->lang = $lang;
+        $url = $this->prepareURL($openWeather);
+        $data = $this->request('GET', $url);
+        return $this->formatData($data);
     }
 
-    public function getByLatLon(array $params)
+    private function formatData(string $data)
     {
-        $url = $this->prepareURL($params);
-        return $this->request('GET', $url);
+        $collection = json_decode($data, true);
+        $weatherUnits = $collection['main'];
+        $weatherDescription = $collection['weather'][0]['description'] ?? 'No Description Available';
+        return [
+            'temperature' => $weatherUnits['temp'],
+            'humidity' => $weatherUnits['humidity'],
+            'weather_description' => $weatherDescription,
+            'time' => Carbon::parse($collection['dt'])->format('Y-m-d H:i:s')
+        ];
     }
 
-    private function prepareURL(array $params): string
+    private function prepareURL(OpenWeatherBuilder $openWeather): string
     {
         $urlParams = http_build_query([
             'appid' => ENV('OPEN_WEATHER_API_KEY'),
-            'lat' => $params['lat'] ?? '',
-            'lon' => $params['lon'] ?? '',
-            'unit' => $this->unit,
-            'lang' => $this->lang
+            'lat' => $openWeather->getLat(),
+            'lon' => $openWeather->getLon(),
+            'units' => $openWeather->getUnit(),
+            'lang' => $openWeather->getLang()
         ]);
         return $this->baseURL . "?$urlParams";
     }

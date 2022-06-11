@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->singleton('OpenWeather', function ($app) {
-            return new OpenWeatherApiService('metric', 'en');
+            return new OpenWeatherApiService();
         });
     }
 }

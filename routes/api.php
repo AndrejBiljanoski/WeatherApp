@@ -18,4 +18,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/test/{lat}/{lon}', [App\Http\Controllers\OpenWeatherController::class, 'getData'])->name('open-weather.get');
+Route::get('/{slug}', [App\Http\Controllers\CityWeatherController::class, 'show'])->name('city-weather.get');
