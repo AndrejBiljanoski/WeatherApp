@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Builders\OpenWeatherBuilder;
 use App\Facades\OpenWeather;
+use App\Jobs\StoreOpenWeatherDataJob;
 use App\Models\City;
 use App\Models\CityWeatherData;
 use Carbon\Carbon;
@@ -52,7 +53,7 @@ class GetOpenWeatherDataCommand extends Command
         }
         $dataChunk = collect($dataChunk)->chunk(20);
         foreach ($dataChunk as $chunk) {
-            CityWeatherData::insert($chunk->toArray());
+            StoreOpenWeatherDataJob::dispatch($chunk->toArray());
         }
         return 0;
     }

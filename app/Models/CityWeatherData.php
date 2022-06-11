@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,6 +13,14 @@ class CityWeatherData extends Model
     protected $fillable = [
         'city_id',
         'temperature',
-        'humidity'
+        'humidity',
+        'time'
     ];
+
+    public $timestamps = false;
+
+    public function setTimeAttribute($time)
+    {
+        $this->attributes['time'] = Carbon::parse($time)->format('Y-m-d H:i:s');
+    }
 }

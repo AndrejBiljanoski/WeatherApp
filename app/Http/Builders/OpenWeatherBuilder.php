@@ -6,8 +6,8 @@ class OpenWeatherBuilder
 {
     private string $unit = 'metric';
     private string $lang = 'en';
-    private string $lat;
-    private string $lon;
+    private float $lat;
+    private float $lon;
 
     public function __construct(float $lat, float $lon)
     {

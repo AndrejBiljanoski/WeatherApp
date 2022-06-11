@@ -10,7 +10,7 @@ use App\Models\City;
 class CityWeatherController extends Controller
 {
     use ApiResponseTrait;
-
+    
     public function show($id)
     {
         $city = City::find($id); 

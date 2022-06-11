@@ -10,26 +10,26 @@ class OpenWeatherApiService
 {
     use ApiRequestTrait;
 
-    private string $baseURL = 'https://api.openweathermap.org/data/2.5/weather';
+    private const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
-    public function get(OpenWeatherBuilder $openWeather)
+    public function get(OpenWeatherBuilder $openWeather): array
     {
         $url = $this->prepareURL($openWeather);
         $data = $this->request('GET', $url);
         return $this->formatData($data);
     }
 
-    private function formatData(string $data)
+    private function formatData(string $data): array
     {
-        $collection = json_decode($data, true);
-        $weatherUnits = $collection['main'];
-        $weatherDescription = $collection['weather'][0]['description'] ?? 'No Description Available';
+        $weatherDataCollection = json_decode($data, true);
+        $weatherUnits = $weatherDataCollection['main'];
+        $weatherDescription = $weatherDataCollection['weather'][0]['description'] ?? 'No Description Available';
         return [
             'temperature' => $weatherUnits['temp'],
             'humidity' => $weatherUnits['humidity'],
             'weather_description' => $weatherDescription,
-            'time' => Carbon::parse($collection['dt'])->format('Y-m-d H:i:s')
-        ];
+            'time' => Carbon::parse($weatherDataCollection['dt'])->format('Y-m-d H:i:s')
+        ]; 
     }
 
     private function prepareURL(OpenWeatherBuilder $openWeather): string
@@ -41,6 +41,6 @@ class OpenWeatherApiService
             'units' => $openWeather->getUnit(),
             'lang' => $openWeather->getLang()
         ]);
-        return $this->baseURL . "?$urlParams";
+        return self::BASE_URL . "?$urlParams";
     }
 }
