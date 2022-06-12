@@ -14,7 +14,12 @@ class CityWeatherData extends Model
         'city_id',
         'temperature',
         'humidity',
+        'weather_description',
         'time'
+    ];
+
+    protected $hidden = [
+        'id'
     ];
 
     public $timestamps = false;

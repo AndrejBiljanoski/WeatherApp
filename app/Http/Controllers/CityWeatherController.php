@@ -2,20 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Builders\OpenWeatherBuilder;
-use App\Facades\OpenWeather;
+use App\Http\Requests\CityWeatherManageRequest;
 use App\Http\Traits\ApiResponseTrait;
-use App\Models\City;
+use App\Models\CityWeatherData;
 
 class CityWeatherController extends Controller
 {
     use ApiResponseTrait;
+
+    public function store(CityWeatherManageRequest $request)
+    {
+        $cityWeather = CityWeatherData::create($request->all());
+        return redirect()->route('city-weather.get', $cityWeather->id);
+    }
+
+    public function update(CityWeatherManageRequest $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:city_weather_data,id'
+        ]);
+        $cityWeather = CityWeatherData::findOrFail($request->id);
+        $cityWeather->update($request->except('id'));
+        return redirect()->route('city-weather.get', $cityWeather->id);
+    }
     
     public function show($id)
     {
-        $city = City::find($id); 
-        $openWeather = new OpenWeatherBuilder($city->latitude, $city->longitude); 
-        $response = OpenWeather::get($openWeather);
-        return $this->successResponse($response);
+        $cityWeather = CityWeatherData::findOrFail($id);
+        return $this->successResponse($cityWeather);
     }
 }

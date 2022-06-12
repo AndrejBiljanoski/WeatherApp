@@ -6,8 +6,6 @@ use App\Builders\OpenWeatherBuilder;
 use App\Facades\OpenWeather;
 use App\Jobs\StoreOpenWeatherDataJob;
 use App\Models\City;
-use App\Models\CityWeatherData;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetOpenWeatherDataCommand extends Command
@@ -17,7 +15,7 @@ class GetOpenWeatherDataCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'openweather:get';
+    protected $signature = 'openweather:get {--id=*}';
 
     /**
      * The console command description.
@@ -43,7 +41,11 @@ class GetOpenWeatherDataCommand extends Command
      */
     public function handle()
     {
-        $cities = City::all();
+        $option = $this->option('id');
+        $cities = City::where(function ($query) use ($option) {
+            if ($option) 
+                $query->whereIn('id', $option);
+        })->get();
         $dataChunk = [];
         foreach ($cities as $city) {
             $openWeather = new OpenWeatherBuilder($city->latitude, $city->longitude);

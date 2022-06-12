@@ -21,14 +21,14 @@ class OpenWeatherApiService
 
     private function formatData(string $data): array
     {
-        $weatherDataCollection = json_decode($data, true);
-        $weatherUnits = $weatherDataCollection['main'];
-        $weatherDescription = $weatherDataCollection['weather'][0]['description'] ?? 'No Description Available';
+        $weatherData = json_decode($data, true);
+        $weatherUnits = $weatherData['main'];
+        $weatherDescription = $weatherData['weather'][0]['description'] ?? 'No Description Available';
         return [
             'temperature' => $weatherUnits['temp'],
             'humidity' => $weatherUnits['humidity'],
             'weather_description' => $weatherDescription,
-            'time' => Carbon::parse($weatherDataCollection['dt'])->format('Y-m-d H:i:s')
+            'time' => Carbon::parse($weatherData['dt'])->format('Y-m-d H:i:s')
         ]; 
     }
 

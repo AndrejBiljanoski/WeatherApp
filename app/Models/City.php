@@ -10,4 +10,9 @@ class City extends Model
     use HasFactory;
 
     public $timestamps = false;
+
+    public function weather_data()
+    {
+        return $this->hasMany(CityWeatherData::class, 'city_id');
+    }
 }
