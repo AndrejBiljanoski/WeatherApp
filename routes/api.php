@@ -18,8 +18,4 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::controller(CityWeatherController::class)->prefix('weather/city')->group(function () {
-    Route::get('/{id}', 'show')->name('city-weather.get');
-    Route::post('','store')->name('city-weather.add');
-    Route::patch('','update')->name('city-weather.update');
-});
+Route::resource('/city-weather', CityWeatherController::class);

@@ -28,4 +28,9 @@ class CityWeatherData extends Model
     {
         $this->attributes['time'] = Carbon::parse($time)->format('Y-m-d H:i:s');
     }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
 }
