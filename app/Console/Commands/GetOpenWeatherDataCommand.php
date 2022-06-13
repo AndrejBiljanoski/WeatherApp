@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Builders\OpenWeatherBuilder;
 use App\Facades\OpenWeather;
 use App\Jobs\StoreOpenWeatherDataJob;
 use App\Models\City;
@@ -48,12 +47,11 @@ class GetOpenWeatherDataCommand extends Command
         })->get();
         $dataChunk = [];
         foreach ($cities as $city) {
-            $openWeather = new OpenWeatherBuilder($city->latitude, $city->longitude);
-            $openWeatherData = OpenWeather::get($openWeather);
+            $openWeatherData = OpenWeather::get($city->latitude, $city->longitude);
             $openWeatherData['city_id'] = $city->id;
             $dataChunk[] = $openWeatherData;
         }
-        $dataChunk = collect($dataChunk)->chunk(20);
+        $dataChunk = collect($dataChunk)->chunk(ENV('CHUNK_SIZE'));
         foreach ($dataChunk as $chunk) {
             StoreOpenWeatherDataJob::dispatch($chunk->toArray());
         }

@@ -34,6 +34,7 @@
             "Tests\\": "tests/"
         },
         "classmap": [
+            "app/Http/Interfaces/OpenWeatherBuilderInterface.php",
             "app/Http/Builders/OpenWeatherBuilder.php"
         ]
     },
