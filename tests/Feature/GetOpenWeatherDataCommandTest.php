@@ -49,7 +49,7 @@ class GetOpenWeatherDataCommandTest extends TestCase
         Queue::fake();
         $this->artisan('openweather:get');
         Queue::assertPushed(StoreOpenWeatherDataJob::class, function ($job) {
-            return count($job->chunk) == ENV('CHUNK_SIZE');
+            return count($job->chunk) <= ENV('CHUNK_SIZE');
         });
     }
 }

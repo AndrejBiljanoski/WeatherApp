@@ -35,7 +35,8 @@
         },
         "classmap": [
             "app/Http/Interfaces/OpenWeatherBuilderInterface.php",
-            "app/Http/Builders/OpenWeatherBuilder.php"
+            "app/Http/Builders/OpenWeatherBuilder.php",
+            "app/Http/Helpers/CoordinateHelper.php"
         ]
     },
     "scripts": {

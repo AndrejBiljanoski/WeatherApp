@@ -17,12 +17,16 @@ class OpenWeatherApiService
     {   
         $this->builder = new OpenWeatherBuilder();
     }
-    public function get(float $lat, float $lon): array
+    public function get(float $lat, float $lon): array|NULL
     {
         $builder = $this->builder;
         $builder->addLang(ENV('OPEN_WEATHER_LANGUAGE'));
         $builder->addUnit(ENV('OPEN_WEATHER_UNIT'));
         $builder->addLat($lat)->addLon($lon);
+        if(!$builder->validate())
+        {
+            return NULL;
+        }
         $url = SELF::BASE_URL . "?" . $builder->getURL();
         $data = $this->request('GET', $url);
         return $this->formatData($data);

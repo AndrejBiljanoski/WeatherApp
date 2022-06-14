@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Builders;
+
+use App\Helpers\CoordinateHelper;
 use App\Interfaces\OpenWeatherBuilderInterface;
 
 class OpenWeatherBuilder implements OpenWeatherBuilderInterface
@@ -22,16 +24,23 @@ class OpenWeatherBuilder implements OpenWeatherBuilderInterface
         return $this;
     }
 
-    public function addLat(string $lat): OpenWeatherBuilderInterface
+    public function addLat(float $lat): OpenWeatherBuilderInterface
     {
         $this->lat = $lat;
         return $this;
     }
 
-    public function addlon(string $lon): OpenWeatherBuilderInterface
+    public function addlon(float $lon): OpenWeatherBuilderInterface
     {
         $this->lon = $lon;
         return $this;
+    }
+
+    public function validate(): bool
+    {
+        $validLat = CoordinateHelper::validLatitude($this->lat);
+        $validLon = CoordinateHelper::validLongitude($this->lon);
+        return $validLat && $validLon;
     }
 
     public function getURL(): string

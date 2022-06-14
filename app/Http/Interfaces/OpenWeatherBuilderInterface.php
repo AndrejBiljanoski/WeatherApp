@@ -9,9 +9,9 @@ interface OpenWeatherBuilderInterface
 
     public function addLang(string $lang): OpenWeatherBuilderInterface;
 
-    public function addLat(string $lat): OpenWeatherBuilderInterface;
+    public function addLat(float $lat): OpenWeatherBuilderInterface;
 
-    public function addlon(string $lon): OpenWeatherBuilderInterface;
+    public function addlon(float $lon): OpenWeatherBuilderInterface;
 
     public function getURL(): string;
 }
