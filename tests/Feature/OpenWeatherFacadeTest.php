@@ -5,10 +5,19 @@ namespace Tests\Feature;
 use App\Facades\OpenWeather;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class OpenWeatherFacadeTest extends TestCase
 {
+    /** @test */
+    public function openweather_facade_can_be_called()
+    {
+        OpenWeather::spy();
+        OpenWeather::get(21.43, 41.98);
+        OpenWeather::shouldHaveReceived('get')->once()->with(21.43, 41.98);
+    }
+
     /** @test */
     public function openweather_facade_returns_an_array()
     {

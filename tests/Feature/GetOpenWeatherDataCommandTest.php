@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Facades\OpenWeather;
 use App\Jobs\StoreOpenWeatherDataJob;
+use App\Models\City;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -24,6 +26,18 @@ class GetOpenWeatherDataCommandTest extends TestCase
         Queue::assertPushed(StoreOpenWeatherDataJob::class);
     }
 
+    /** @test **/
+    public function openweather_get_command_recieves_openweather_facade()
+    {
+        Queue::fake();
+        OpenWeather::spy();
+        $this->artisan('openweather:get');
+        $cities = City::cursor();
+        foreach($cities as $city)
+        {
+            OpenWeather::shouldHaveReceived('get')->with($city->latitude, $city->longitude);
+        }
+    }
     /** @test */
     public function openweather_get_command_creates_vaild_jobs()
     {

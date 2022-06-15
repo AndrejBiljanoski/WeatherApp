@@ -53,4 +53,9 @@ class City extends Model
         $this->attributes['longitude'] = 180.00;
         $this->valid = false;
     }
+
+    public function getCurrentWeather()
+    {
+        return $this->weather_data->last();
+    }
 }

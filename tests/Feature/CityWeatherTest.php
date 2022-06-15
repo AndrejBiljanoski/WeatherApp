@@ -122,14 +122,7 @@ class CityWeatherTest extends TestCase
     /** @test */
     public function the_city_weather_data_can_be_updated()
     {
-        $this->post('/api/city-weather', [
-            'temperature' => 23,
-            'humidity' => 90,
-            'weather_description' => 'Mostly Cloudy',
-            'time' => '2022-01-01 12:00:00',
-            'city_id' => 1
-        ]);
-        $cityWeatherData = CityWeatherData::first();
+        $cityWeatherData = CityWeatherData::factory()->create()->first();
         $cityWeatherDataCount = CityWeatherData::count();
         $response = $this->patch('/api/city-weather/' . $cityWeatherData->id, [
             'id' => $cityWeatherData->id,
@@ -154,14 +147,7 @@ class CityWeatherTest extends TestCase
     public function the_city_weather_data_can_be_deleted()
     {
         $cityWeatherDataCount = CityWeatherData::count();
-        $this->post('/api/city-weather', [
-            'temperature' => 23,
-            'humidity' => 90,
-            'weather_description' => 'Mostly Cloudy',
-            'time' => '2022-01-01 12:00:00',
-            'city_id' => 1
-        ]);
-        $cityWeatherData = CityWeatherData::first();
+        $cityWeatherData = CityWeatherData::factory()->create()->first();
         $response = $this->delete('/api/city-weather/' . $cityWeatherData->id);
         $this->assertCount($cityWeatherDataCount, CityWeatherData::all());
         $this->assertNull(CityWeatherData::find($cityWeatherData->id));
@@ -171,15 +157,7 @@ class CityWeatherTest extends TestCase
     /** @test */
     public function the_city_weather_data_is_returned_in_correct_format()
     {
-        $this->withoutExceptionHandling();
-        $this->post('/api/city-weather', [
-            'temperature' => 23,
-            'humidity' => 90,
-            'weather_description' => 'Mostly Cloudy',
-            'time' => '2022-01-01 12:00:00',
-            'city_id' => 1
-        ]);
-        $cityWeatherData = CityWeatherData::first();
+        $cityWeatherData = CityWeatherData::factory()->create()->first();
         $response = $this->get('/api/city-weather/' . $cityWeatherData->id);
         $response->assertStatus(200);
         $response->assertJson([
@@ -195,5 +173,23 @@ class CityWeatherTest extends TestCase
                 "latitude" => $cityWeatherData->city->latitude
             ]
         ]);
+    }
+
+    /** @test */
+    public function city_weather_data_conversions_to_kelvin_are_valid()
+    {
+        $cityWeatherData = CityWeatherData::factory()->create()->first();
+        $cityWeatherData->temperature = 23;
+        $cityWeatherData->save();
+        $this->assertEquals($cityWeatherData->getKelvin(), 296.15);
+    }
+
+    /** @test */
+    public function city_weather_data_conversions_to_degrees_are_valid()
+    {
+        $cityWeatherData = CityWeatherData::factory()->create()->first();
+        $cityWeatherData->temperature = 23;
+        $cityWeatherData->save();
+        $this->assertEquals($cityWeatherData->getDegrees(), 73.40);
     }
 }

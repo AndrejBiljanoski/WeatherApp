@@ -56,7 +56,7 @@ class CityController extends Controller
      */
     public function show($id)
     {
-        $city = City::findOrFail($id);
+        $city = City::with('weather_data')->findOrFail($id);
         return $this->successResponse($city);
     }
 
