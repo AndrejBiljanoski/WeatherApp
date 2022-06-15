@@ -36,6 +36,6 @@ class LatitudeRule implements Rule
      */
     public function message()
     {
-        return 'The :attrbute must be a valid latitude value.';
+        return 'The :attribute must be a valid latitude value.';
     }
 }

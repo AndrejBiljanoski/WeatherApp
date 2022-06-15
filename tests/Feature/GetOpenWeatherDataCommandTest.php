@@ -12,9 +12,12 @@ use Illuminate\Support\Facades\Queue;
 
 class GetOpenWeatherDataCommandTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /** @test */
     public function openweather_get_command_is_executed_successfuly()
     {
+        $this->artisan('db:seed');
         $this->artisan('openweather:get')->assertSuccessful()->assertExitCode(0);
     }
 
@@ -22,6 +25,7 @@ class GetOpenWeatherDataCommandTest extends TestCase
     public function openweather_get_command_creates_jobs()
     {
         Queue::fake();
+        $this->artisan('db:seed');
         $this->artisan('openweather:get');
         Queue::assertPushed(StoreOpenWeatherDataJob::class);
     }
@@ -31,39 +35,29 @@ class GetOpenWeatherDataCommandTest extends TestCase
     {
         Queue::fake();
         OpenWeather::spy();
+        $this->artisan('db:seed');
         $this->artisan('openweather:get');
         $cities = City::cursor();
-        foreach($cities as $city)
-        {
+        foreach ($cities as $city) {
             OpenWeather::shouldHaveReceived('get')->with($city->latitude, $city->longitude);
         }
     }
+
     /** @test */
     public function openweather_get_command_creates_vaild_jobs()
     {
         Queue::fake();
+        $this->artisan('db:seed');
         $this->artisan('openweather:get');
         Queue::assertPushed(StoreOpenWeatherDataJob::class, function ($job) {
             $this->assertIsObject($job);
             $this->assertObjectHasAttribute('chunk', $job);
-            foreach ($job->chunk as $insertArr) {
-                $this->assertArrayHasKey('temperature', $insertArr);
-                $this->assertArrayHasKey('humidity', $insertArr);
-                $this->assertArrayHasKey('weather_description', $insertArr);
-                $this->assertArrayHasKey('time', $insertArr);
-                $this->assertArrayHasKey('city_id', $insertArr);
-            }
+            $this->assertArrayHasKey('temperature', $job->chunk);
+            $this->assertArrayHasKey('humidity', $job->chunk);
+            $this->assertArrayHasKey('weather_description', $job->chunk);
+            $this->assertArrayHasKey('time', $job->chunk);
+            $this->assertArrayHasKey('city_id', $job->chunk);
             return $job;
-        });
-    }
-
-    /** @test */
-    public function openweather_get_command_creates_jobs_that_insert_chunks_of_length()
-    {
-        Queue::fake();
-        $this->artisan('openweather:get');
-        Queue::assertPushed(StoreOpenWeatherDataJob::class, function ($job) {
-            return count($job->chunk) <= ENV('CHUNK_SIZE');
         });
     }
 }

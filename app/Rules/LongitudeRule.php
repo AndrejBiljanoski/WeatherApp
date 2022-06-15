@@ -36,6 +36,6 @@ class LongitudeRule implements Rule
      */
     public function message()
     {
-        return 'The :attrbute must be a valid longitude value.';
+        return 'The :attribute must be a valid longitude value.';
     }
 }

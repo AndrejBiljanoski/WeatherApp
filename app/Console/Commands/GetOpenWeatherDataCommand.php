@@ -21,7 +21,8 @@ class GetOpenWeatherDataCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Used to get data from Open Weather API. Creates jobs for inserting data.
+    Can take parameters id: ex. openweather:get --id=1 --id=2 for updating specific cities.';
 
     /**
      * Create a new command instance.
@@ -41,20 +42,16 @@ class GetOpenWeatherDataCommand extends Command
     public function handle()
     {
         $option = $this->option('id');
-        $cities = City::where(function ($query) use ($option) {
+        City::where(function ($query) use ($option) {
             if ($option) 
                 $query->whereIn('id', $option);
-        })->get();
-        $dataChunk = [];
-        foreach ($cities as $city) {
-            $openWeatherData = OpenWeather::get($city->latitude, $city->longitude);
-            $openWeatherData['city_id'] = $city->id;
-            $dataChunk[] = $openWeatherData;
-        }
-        $dataChunk = collect($dataChunk)->chunk(ENV('CHUNK_SIZE'));
-        foreach ($dataChunk as $chunk) {
-            StoreOpenWeatherDataJob::dispatch($chunk->toArray());
-        }
+        })->chunk(ENV('CHUNK_SIZE'), function($cities) {
+            foreach ($cities as $city) {
+                $openWeatherData = OpenWeather::get($city->latitude, $city->longitude);
+                $openWeatherData['city_id'] = $city->id;
+                StoreOpenWeatherDataJob::dispatch($openWeatherData);
+            }
+        });
         return 0;
     }
 }

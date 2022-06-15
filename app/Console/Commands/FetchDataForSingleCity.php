@@ -20,7 +20,7 @@ class FetchDataForSingleCity extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Gets tabular weather data for single city.';
 
     /**
      * Create a new command instance.

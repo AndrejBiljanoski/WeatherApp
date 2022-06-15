@@ -11,9 +11,12 @@ use Tests\TestCase;
 
 class FetchDataForSingleCityTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function fetch_data_for_single_city_command_is_executed_successfuly_for_each_city()
     {
+        $this->artisan('db:seed');
         $cities = City::cursor();
         foreach($cities as $city)
         {

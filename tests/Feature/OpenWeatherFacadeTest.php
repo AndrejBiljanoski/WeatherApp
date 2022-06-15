@@ -10,6 +10,8 @@ use Tests\TestCase;
 
 class OpenWeatherFacadeTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /** @test */
     public function openweather_facade_can_be_called()
     {

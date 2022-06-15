@@ -19,5 +19,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::resource('/city', CityController::class);
-Route::resource('/city-weather', CityWeatherController::class);
+
+Route::middleware([
+    'auth:sanctum',
+])->group(function () {
+    Route::resource('/city', CityController::class);
+    Route::resource('/city-weather', CityWeatherController::class);
+});

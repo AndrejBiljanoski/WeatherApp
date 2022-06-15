@@ -18,18 +18,8 @@ class CityController extends Controller
      */
     public function index()
     {
-        $cities = City::cursor();
+        $cities = City::with('weather_data')->cursor();
         return $this->successResponse($cities);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -58,17 +48,6 @@ class CityController extends Controller
     {
         $city = City::with('weather_data')->findOrFail($id);
         return $this->successResponse($city);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**

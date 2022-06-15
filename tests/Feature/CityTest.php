@@ -5,15 +5,20 @@ namespace Tests\Feature;
 use App\Helpers\CoordinateHelper;
 use App\Models\City;
 use App\Models\CityWeatherData;
+use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class CityTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /** @test */
     public function all_cities_have_valid_coordinates()
     {
+        $this->artisan('db:seed');
         $cities = City::cursor();
         foreach ($cities as $city) {
             $validLat = CoordinateHelper::validLatitude($city->latitude);
@@ -51,8 +56,18 @@ class CityTest extends TestCase
     /** @test */
     public function a_city_can_be_stored()
     {
-        $citiesCount = City::count();
-        $response = $this->post('/api/city', [
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['create'],
+        ]);
+        $citiesCount = City::count(); 
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])
+        ->post('/api/city', [
             'name' => 'Atlantis',
             'latitude' => 41.9833,
             'longitude' => 21.3347
@@ -67,23 +82,53 @@ class CityTest extends TestCase
     /** @test */
     public function the_store_city_method_validated_longitude()
     {
-        $response = $this->post('/api/city', [
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['create'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])
+        ->post('/api/city', [
             'name' => 'Atlantis',
             'latitude' => 41.9833,
             'longitude' => 200.00
         ]);
-        $response->assertSessionHasErrors('longitude');
+        $response->assertJson([
+            'message' => "The given data was invalid.",
+            'errors' => [
+                "longitude" => ["The longitude must be a valid longitude value."]
+            ]
+        ]);
     }
 
     /** @test */
     public function the_store_city_method_validated_latitude()
     {
-        $response = $this->post('/api/city', [
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['create'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])
+        ->post('/api/city', [
             'name' => 'Atlantis',
             'latitude' => 410.9833,
             'longitude' => 21.3347
         ]);
-        $response->assertSessionHasErrors('latitude');
+        $response->assertJson([
+            'message' => "The given data was invalid.",
+            'errors' => [
+                "latitude" => ["The latitude must be a valid latitude value."]
+            ]
+        ]);
     }
 
     /** @test */
@@ -91,7 +136,17 @@ class CityTest extends TestCase
     {
         $newCity = City::factory(1)->create()->first();
         $citiesCount = City::count();
-        $response = $this->patch('/api/city/' . $newCity->id, [
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['update'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])
+        ->patch('/api/city/' . $newCity->id, [
             'name' => 'Atlantis',
             'latitude' => 41.9833,
             'longitude' => 21.3347
@@ -107,24 +162,52 @@ class CityTest extends TestCase
     public function the_update_city_method_validated_longitude()
     {
         $newCity = City::factory(1)->create()->first();
-        $response = $this->patch('/api/city/' . $newCity->id, [
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['update'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])->patch('/api/city/' . $newCity->id, [
             'name' => 'Atlantis',
             'latitude' => 41.9833,
             'longitude' => 200.00
         ]);
-        $response->assertSessionHasErrors('longitude');
+        $response->assertJson([
+            'message' => "The given data was invalid.",
+            'errors' => [
+                "longitude" => ["The longitude must be a valid longitude value."]
+            ]
+        ]);
     }
 
     /** @test */
     public function the_update_city_method_validated_latitude()
     {
         $newCity = City::factory(1)->create()->first();
-        $response = $this->patch('/api/city/' . $newCity->id, [
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['update'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])->patch('/api/city/' . $newCity->id, [
             'name' => 'Atlantis',
             'latitude' => 400.9833,
             'longitude' => 21.3347
         ]);
-        $response->assertSessionHasErrors('latitude');
+        $response->assertJson([
+            'message' => "The given data was invalid.",
+            'errors' => [
+                "latitude" => ["The latitude must be a valid latitude value."]
+            ]
+        ]);
     }
 
     /** @test */
@@ -133,7 +216,16 @@ class CityTest extends TestCase
         $newCity = City::factory(1)->create()->first();
         $newCityData = $newCity->toArray();
         $citiesCount = City::count();
-        $response = $this->delete('/api/city/' . $newCity->id);
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['delete'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])->delete('/api/city/' . $newCity->id);
         $response->assertStatus(200);
         $this->assertDatabaseMissing('cities', $newCityData);
         $this->assertCount($citiesCount - 1, City::all());
@@ -144,7 +236,16 @@ class CityTest extends TestCase
     {
         $newCity = City::factory(1)->create()->first();
         $newCityData = $newCity->toArray();
-        $response = $this->post('/api/city-weather', [
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['create'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])->post('/api/city-weather', [
             'temperature' => 23.0,
             'humidity' => 90.0,
             'weather_description' => 'Mostly Cloudy',
@@ -153,7 +254,16 @@ class CityTest extends TestCase
         ]);
         $newCityWeather = CityWeatherData::orderBy('id','desc')->first();
         $newCityWeatherData = $newCityWeather->toArray();
-        $response = $this->delete('/api/city/' . $newCity->id);
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $token = $user->tokens()->create([
+            'name' => 'Test Token',
+            'token' => Str::random(40),
+            'abilities' => ['delete'],
+        ]);
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer '. $token->token,
+            'Accept' => 'application/json'
+        ])->delete('/api/city/' . $newCity->id);
         $response->assertStatus(200);
         $this->assertDatabaseMissing('cities', $newCityData);
         $this->assertDatabaseMissing('city_weather_data', $newCityWeatherData);

@@ -29,11 +29,6 @@ class CityWeatherData extends Model
         $this->attributes['time'] = Carbon::parse($time)->format('Y-m-d H:i:s');
     }
 
-    public function getTimeAttribute()
-    {
-        return Carbon::parse($this->attributes['time']);
-    }
-
     public function getTemperatureAttribute()
     {
         return number_format($this->attributes['temperature'], 2);
@@ -63,8 +58,8 @@ class CityWeatherData extends Model
         ->orderBy('id', 'desc')
         ->first();
         return [
-            'temperature' => number_format($this->temperature - $prevData->temperature, 2),
-            'humidity' => number_format($this->humidity - $prevData->humidity, 2)
+            'temperature' => $prevData ? number_format($this->temperature - $prevData->temperature, 2) : 0,
+            'humidity' => $prevData ? number_format($this->humidity - $prevData->humidity, 2) : 0
         ];
     }
 
