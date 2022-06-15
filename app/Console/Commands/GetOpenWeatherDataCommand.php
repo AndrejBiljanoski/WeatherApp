@@ -22,7 +22,7 @@ class GetOpenWeatherDataCommand extends Command
      * @var string
      */
     protected $description = 'Used to get data from Open Weather API. Creates jobs for inserting data.
-    Can take parameters id: ex. openweather:get --id=1 --id=2 for updating specific cities.';
+    Can take parameters city id: ex. openweather:get --id=1 --id=2 for updating specific cities.';
 
     /**
      * Create a new command instance.
